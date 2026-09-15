@@ -33,39 +33,31 @@ class Paths
 	}
 
 	public static var dumpExclusions:Array<String> = ['assets/shared/music/freakyMenu.$SOUND_EXT'];
-	/// haya I love you for the base cache dump I took to the max
 	public static function clearUnusedMemory() {
-		// clear non local assets in the tracked assets list
 		for (key in currentTrackedAssets.keys()) {
-			// if it is not currently contained within the used local assets
 			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key)) {
 				var obj = currentTrackedAssets.get(key);
 				@:privateAccess
 				if (obj != null) {
-					// remove the key from all cache maps
 					FlxG.bitmap._cache.remove(key);
 					openfl.Assets.cache.removeBitmapData(key);
 					currentTrackedAssets.remove(key);
 
-					// and get rid of the object
-					obj.persist = false; // make sure the garbage collector actually clears it up
+					obj.persist = false;
 					obj.destroyOnNoUse = true;
 					obj.destroy();
 				}
 			}
 		}
 
-		// run the garbage collector for good measure lmfao
 		System.gc();
 		#if cpp
 		cpp.NativeGc.run(true);
 		#end
 	}
 
-	// define the locally tracked assets
 	public static var localTrackedAssets:Array<String> = [];
 	public static function clearStoredMemory() {
-		// clear anything not in the tracked assets list
 		@:privateAccess
 		for (key in FlxG.bitmap._cache.keys())
 		{
@@ -78,7 +70,6 @@ class Paths
 			}
 		}
 
-		// clear all sounds that are cached
 		for (key => asset in currentTrackedSounds)
 		{
 			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key) && asset != null)
@@ -87,7 +78,6 @@ class Paths
 				currentTrackedSounds.remove(key);
 			}
 		}
-		// flags everything to be cleared out next unused memory clear
 		localTrackedAssets = [];
 		#if !html5 openfl.Assets.cache.clear("songs"); #end
 	}
@@ -207,7 +197,6 @@ class Paths
 	{
 		var songKey:String = '${formatToSongPath(song)}/Voices';
 		if(postfix != null) songKey += '-' + postfix;
-		//trace('songKey test: $songKey');
 		var voices = returnSound(null, songKey, 'songs');
 		return voices;
 	}
@@ -343,14 +332,13 @@ class Paths
 				else if (FileSystem.exists(findFile('$mod/$key')))
 					return true;
 			#end
-			
+
 			if (FileSystem.exists(mods('$key')))
 				return true;
 			#if (linux || ios)
 			else if (FileSystem.exists(findFile(key)))
 				return true;
 			#end
-
 		}
 		#end
 
@@ -409,7 +397,7 @@ class Paths
 		var imageLoaded:FlxGraphic = image(key, library, allowGPU);
 		#if MODS_ALLOWED
 		var txtExists:Bool = false;
-		
+
 		var txt:String = modsTxt(key);
 		if(FileSystem.exists(txt)) txtExists = true;
 
@@ -454,19 +442,16 @@ class Paths
 			if(!currentTrackedSounds.exists(file))
 			{
 				currentTrackedSounds.set(file, Sound.fromFile(file));
-				//trace('precached mod sound: $file');
 			}
 			localTrackedAssets.push(file);
 			return currentTrackedSounds.get(file);
 		}
 		#end
 
-		// I hate this so god damn much
 		var gottenPath:String = '$key.$SOUND_EXT';
 		if(path != null) gottenPath = '$path/$gottenPath';
 		gottenPath = getPath(gottenPath, SOUND, library);
 		gottenPath = gottenPath.substring(gottenPath.indexOf(':') + 1, gottenPath.length);
-		// trace(gottenPath);
 		if(!currentTrackedSounds.exists(gottenPath))
 		{
 			var retKey:String = (path != null) ? '$path/$key' : key;
@@ -474,7 +459,6 @@ class Paths
 			if(OpenFlAssets.exists(retKey, SOUND))
 			{
 				currentTrackedSounds.set(gottenPath, OpenFlAssets.getSound(retKey));
-				//trace('precached vanilla sound: $retKey');
 			}
 		}
 		localTrackedAssets.push(gottenPath);
@@ -518,20 +502,6 @@ class Paths
 		return modFolders('images/' + key + '.json');
 	}
 
-	/* Goes unused for now
-
-	inline static public function modsShaderFragment(key:String, ?library:String)
-	{
-		return modFolders('shaders/'+key+'.frag');
-	}
-	inline static public function modsShaderVertex(key:String, ?library:String)
-	{
-		return modFolders('shaders/'+key+'.vert');
-	}
-	inline static public function modsAchievements(key:String) {
-		return modFolders('achievements/' + key + '.json');
-	}*/
-
 	static public function modFolders(key:String) {
 		if(Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0) {
 			var fileToCheck:String = mods(Mods.currentModDirectory + '/' + key);
@@ -554,6 +524,12 @@ class Paths
 				return fileToCheck;
 		}
 		return #if mobile Sys.getCwd() + #end 'mods/' + key;
+	}
+
+	public static function getModStateScript(stateName:String):String {
+		var path:String = modFolders('states/' + stateName + '.hscript');
+		if(FileSystem.exists(path)) return path;
+		return null;
 	}
 	#end
 
@@ -614,7 +590,7 @@ class Paths
 		var changedAnimJson = false;
 		var changedAtlasJson = false;
 		var changedImage = false;
-		
+
 		if(spriteJson != null)
 		{
 			changedAtlasJson = true;
@@ -627,7 +603,6 @@ class Paths
 			animationJson = File.getContent(animationJson);
 		}
 
-		// is folder or image path
 		if(Std.isOfType(folderOrImg, String))
 		{
 			var originalPath:String = folderOrImg;
@@ -641,7 +616,6 @@ class Paths
 					spriteJson = getTextFromFile('images/$originalPath/spritemap$st.json');
 					if(spriteJson != null)
 					{
-						//trace('found Sprite Json');
 						changedImage = true;
 						changedAtlasJson = true;
 						folderOrImg = Paths.image('$originalPath/spritemap$st');
@@ -650,7 +624,6 @@ class Paths
 				}
 				else if(Paths.fileExists('images/$originalPath/spritemap$st.png', IMAGE))
 				{
-					//trace('found Sprite PNG');
 					changedImage = true;
 					folderOrImg = Paths.image('$originalPath/spritemap$st');
 					break;
@@ -659,36 +632,19 @@ class Paths
 
 			if(!changedImage)
 			{
-				//trace('Changing folderOrImg to FlxGraphic');
 				changedImage = true;
 				folderOrImg = Paths.image(originalPath);
 			}
 
 			if(!changedAnimJson)
 			{
-				//trace('found Animation Json');
 				changedAnimJson = true;
 				animationJson = getTextFromFile('images/$originalPath/Animation.json');
 			}
 		}
 
-		//trace(folderOrImg);
-		//trace(spriteJson);
-		//trace(animationJson);
 		spr.loadAtlasEx(folderOrImg, spriteJson, animationJson);
 	}
-
-	/*private static function getContentFromFile(path:String):String
-	{
-		var onAssets:Bool = false;
-		var path:String = Paths.getPath(path, TEXT, true);
-		if(FileSystem.exists(path) || (onAssets = true && Assets.exists(path, TEXT)))
-		{
-			//trace('Found text: $path');
-			return !onAssets ? File.getContent(path) : Assets.getText(path);
-		}
-		return null;
-	}*/
 	#end
 
 	public static function readDirectory(directory:String):Array<String>
