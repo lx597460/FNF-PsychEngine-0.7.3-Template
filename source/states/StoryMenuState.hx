@@ -3,6 +3,8 @@ package states;
 import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
+import backend.Paths;
+import hscript.FunkinScript;
 
 import flixel.group.FlxGroup;
 import flixel.graphics.FlxGraphic;
@@ -43,6 +45,13 @@ class StoryMenuState extends MusicBeatState
 
 	override function create()
 	{
+		var modStateScript = Paths.getModStateScript('StoryMenuState');
+		if (modStateScript != null) {
+			var script = new FunkinScript(modStateScript);
+			script.set('parentState', this);
+			script.call('onCreate');
+		}
+
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 
