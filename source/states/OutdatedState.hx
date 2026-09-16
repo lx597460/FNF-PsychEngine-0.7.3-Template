@@ -1,5 +1,8 @@
 package states;
 
+import backend.Paths;
+import hscript.FunkinScript;
+
 class OutdatedState extends MusicBeatState
 {
 	public static var leftState:Bool = false;
@@ -7,6 +10,13 @@ class OutdatedState extends MusicBeatState
 	var warnText:FlxText;
 	override function create()
 	{
+		var modStateScript = Paths.getModStateScript('OutdatedState');
+		if (modStateScript != null) {
+			var script = new FunkinScript(modStateScript);
+			script.set('parentState', this);
+			script.call('onCreate');
+		}
+
 		super.create();
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
