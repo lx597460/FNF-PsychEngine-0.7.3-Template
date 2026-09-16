@@ -3,6 +3,8 @@ package states;
 import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
+import backend.Paths;
+import hscript.FunkinScript;
 
 import objects.HealthIcon;
 import objects.MusicPlayer;
@@ -50,6 +52,13 @@ class FreeplayState extends MusicBeatState
 
 	override function create()
 	{
+		var modStateScript = Paths.getModStateScript('FreeplayState');
+		if (modStateScript != null) {
+			var script = new FunkinScript(modStateScript);
+			script.set('parentState', this);
+			script.call('onCreate');
+		}
+
 		//Paths.clearStoredMemory();
 		//Paths.clearUnusedMemory();
 		
