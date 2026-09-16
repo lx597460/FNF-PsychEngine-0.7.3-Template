@@ -41,19 +41,19 @@ jobs:
         uses: actions/download-artifact@main
         with:
           name: Android x64
-          path: /home/runner
+          path: /home/runner/android_x64
 
       - name: Move Android x64 File
-        run: mv /home/runner/${{ env.PROJECT_NAME }}-release.apk /home/runner/${{ env.PROJECT_NAME }}-Android-x64.apk
+        run: mv /home/runner/android_x64/*.apk /home/runner/${{ env.PROJECT_NAME }}-Android-x64.apk
 
       - name: Download Android x32 Build
         uses: actions/download-artifact@main
         with:
           name: Android x32
-          path: /home/runner
+          path: /home/runner/android_x32
 
       - name: Move Android x32 File
-        run: mv /home/runner/${{ env.PROJECT_NAME }}-release.apk /home/runner/${{ env.PROJECT_NAME }}-Android-x32.apk
+        run: mv /home/runner/android_x32/*.apk /home/runner/${{ env.PROJECT_NAME }}-Android-x32.apk
 
       - name: Publish The Release
         uses: softprops/action-gh-release@v2
