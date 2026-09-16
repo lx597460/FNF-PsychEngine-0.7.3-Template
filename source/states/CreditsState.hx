@@ -1,5 +1,8 @@
 package states;
 
+import backend.Paths;
+import hscript.FunkinScript;
+
 import objects.AttachedSprite;
 
 class CreditsState extends MusicBeatState
@@ -20,6 +23,13 @@ class CreditsState extends MusicBeatState
 
 	override function create()
 	{
+		var modStateScript = Paths.getModStateScript('CreditsState');
+		if (modStateScript != null) {
+			var script = new FunkinScript(modStateScript);
+			script.set('parentState', this);
+			script.call('onCreate');
+		}
+
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
