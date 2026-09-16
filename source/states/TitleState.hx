@@ -2,6 +2,8 @@ package states;
 
 import backend.WeekData;
 import backend.Highscore;
+import backend.Paths;
+import hscript.FunkinScript;
 
 import flixel.input.keyboard.FlxKey;
 import flixel.addons.transition.FlxTransitionableState;
